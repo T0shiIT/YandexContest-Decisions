@@ -1,1 +1,20 @@
 1. Функция. Простое число
+
+#include <iostream>
+
+bool is_prime(int n) {
+    if (n < 2) return false;      // 0 и 1 — не простые
+    if (n == 2) return true;      // 2 — простое
+    if (n % 2 == 0) return false; // чётные больше 2 — не простые
+
+    for (int i = 3; i <= n / i; i += 2) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}
+
+int main(){
+    int number;
+    std::cin >> number;
+    std::cout << (is_prime(number) ? "YES" : "NO") << std::endl;
+}
