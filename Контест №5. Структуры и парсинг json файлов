@@ -64,3 +64,129 @@ int main()
     print(students);
 }
 ```
+
+**3. Кандидаты на отчисление.**
+```cpp
+#include <iostream>
+#include <algorithm>
+#include <iterator>
+#include <string>
+#include <vector>
+
+struct Course {
+    std::string name;
+    int semester;
+    bool finished;
+};
+
+struct Student {
+    std::string name;
+    std::string group;
+    std::vector<Course> courses;
+};
+
+using namespace std;
+
+Student make_student(string line) {
+    string name, group;
+    vector<Course> courses;
+    size_t start = 0;
+    size_t pos = line.find(';');
+    vector<string> stud;
+    while (pos != string::npos) {
+        stud.push_back(line.substr(start, pos - start));
+        start = pos + 1;
+        pos = line.find(';', start);
+    }
+    stud.push_back(line.substr(start));
+    name = stud[0];
+    group = stud[1];
+    for (size_t i = 2; i < stud.size(); i += 3) {
+        Course course = {stud[i], stoi(stud[i + 1]), stud[i + 2] != "0"};
+        courses.push_back(course);
+    }
+    return {name, group, courses};
+}
+
+bool is_upper(Student a, Student b) {
+    if (a.group == b.group) {
+        return a.name < b.name;
+    } else {
+        return a.group < b.group;
+    }
+}
+
+bool is_debtor(Student student, int cur_semester, int max_debt) {
+    int debts = 0;
+    for (Course c: student.courses) {
+        if (c.semester < cur_semester) {
+            if (!c.finished) {
+                debts++;
+            }
+        }
+    }
+    return (debts > max_debt) ? true : false;
+}
+
+void print(vector<Student> students) {
+    if (students.empty()) {
+        cout << "Empty list!";
+    } else {
+        for (size_t i = 0; i < students.size(); i++) {
+            if (i == 0 || students[i].group != students[i-1].group) {
+                cout << students[i].group << endl;
+            }
+            cout << "- " << students[i].name << endl;
+        }
+    }
+}
+
+int main()
+{
+    int cur_semester, max_debt, stud_count;
+    std::cin >> stud_count >> cur_semester >> max_debt;
+    std::cin.ignore(1);  // Убираем из потока символ \n для корректной работы getline
+
+    std::vector<Student> students(stud_count);
+    for(auto& student: students) {
+        std::string line;
+        std::getline(std::cin, line);
+        student = make_student(line);
+    }
+    
+    std::vector<Student> expulsion_candidates;
+    std::copy_if(students.begin(),
+                 students.end(),
+                 std::back_inserter(expulsion_candidates),
+                 [cur_semester, max_debt](const Student& student){
+                     return is_debtor(student, cur_semester, max_debt);
+                 });
+
+    std::sort(expulsion_candidates.begin(), expulsion_candidates.end(), is_upper);
+    print(expulsion_candidates);
+}
+```
+
+**5. Количество выполненных задач**
+```cpp
+#include "iostream"
+#include "fstream"
+#include "json.hpp"
+using json = nlohmann::json;
+using namespace std;
+
+int main() {
+	ifstream file("data.json");
+	json data = json::parse(file);
+	int user_id, count = 0;
+	cin >> user_id;
+    for (auto& project : data) {
+        for (auto& task : project["tasks"]) {
+            if (task["user_id"] == user_id && task["completed"]) {
+                count++;
+            }
+        }
+    }
+    cout << count;
+}
+```
