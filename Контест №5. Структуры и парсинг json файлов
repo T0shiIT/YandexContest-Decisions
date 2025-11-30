@@ -1,0 +1,66 @@
+# Контест №5. Структуры и парсинг json файлов.
+
+## <ins>**Темы для решения контеста №4:**<ins/>
+
+# C++
+
+**2. Список студентов.**
+```cpp
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+struct Student {
+    std::string name;
+    std::string group;
+};
+
+using namespace std;
+
+Student make_student(string line) {
+    size_t pos = line.find(';');
+    string name = line.substr(0, pos);
+    string group = line.substr(pos + 1, line.length() - pos - 1);
+    return {name, group};
+}
+
+bool is_upper(Student a, Student b) {
+    if (a.group == b.group) {
+        return a.name < b.name;
+    } else {
+        return a.group < b.group;
+    }
+}
+
+void print(vector<Student> students) {
+    if (students.empty()) {
+        cout << "Empty list!";
+    } else {
+        for (size_t i = 0; i < students.size(); i++) {
+            if (i == 0 || students[i].group != students[i-1].group) {
+                cout << students[i].group << endl;
+            }
+            cout << "- " << students[i].name << endl;
+        }
+    }
+}
+
+int main()
+{
+    int count;
+    std::cin >> count;
+    std::cin.ignore(1);  // Убираем из потока символ \n для корректной работы getline
+    
+    std::vector<Student> students(count);
+    for(auto& student: students) {
+        std::string line;
+        std::getline(std::cin, line);
+        student = make_student(line);
+    }
+    
+    std::sort(students.begin(), students.end(), is_upper);
+    
+    print(students);
+}
+```
